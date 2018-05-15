@@ -150,7 +150,6 @@
             return rules;
         },
         __check : function(input, regexp){
-            console.log(input, regexp, input.toString().match(new RegExp(regexp)));
             return input.toString().match(new RegExp(regexp)) !== null;
         }
     };
