@@ -10,7 +10,15 @@
     }
 }(this, function(){
 
-    var Pluralizer = function(){
+    var _pluralizer;
+
+    var Pluralizer = function(newInstance){
+        if (newInstance !== true && _pluralizer instanceof Pluralizer){
+            return _pluralizer;
+        }
+
+        _pluralizer = this;
+
         this.rules = null;
         this.__cached = {};
     };
@@ -36,7 +44,8 @@
                 return regexp;
             },
             or : function(){
-                return Array.prototype.indexOf.call(arguments, true) > -1;
+                var args = Array.prototype.slice.call(arguments, 1, arguments.length);
+                return ["(", args.join("|"), ")"].join("");
             },
             and : function(){
                 return Array.prototype.indexOf.call(arguments, false) < 0;
@@ -45,18 +54,19 @@
                 return ["(", Array.prototype.join.call(arguments, "|"), ")"].join("");
             },
             ends : function(input, value){
-                return input.toString().match(new RegExp([value, "$"].join(""))) != null;
+                return [value, "$"].join("");
+                // return input.toString().match(new RegExp([value, "$"].join(""))) != null;
             },
             equals : function(input, value){
-                return input == value;
+                return ["(", "^", value, "$)"].join("");
             },  
             any : function(input){
-                return true;
+                return ["(", ".+", ")"].join("");
             }
         },
         tools : {
             loop : function(list, cb, ctx){
-                if (typeof list == "object" && typeof list.length == "number"){
+                if (typeof list == "object" && list !== null && typeof list.length == "number"){
                     for (var a = 0, l = list.length; a < l; a++){
                         cb.call(ctx, list[a], a, list);
                     }
@@ -111,6 +121,7 @@
             var splitted = rulesString.split("#");
             var rules = [];
             var e = this.expressions;
+            var _this = this;
 
             this.tools.loop(splitted, function(token, a){
                 token = token.replace(/[?(]/g, "(v,");
@@ -123,7 +134,7 @@
                     equals,
                     any
                 ){
-                    var ruleCheckerCode = ["var f = function(v){return ", token, ";};f;"].join("");
+                    var ruleCheckerCode = ["var f = function(v){return _this.__check(v, ", token, ");};f;"].join("");
                     return eval(ruleCheckerCode);
                 })(
                     e.range.bind(this),
@@ -138,6 +149,9 @@
 
             return rules;
         },
+        __check : function(input, regexp){
+            return input.toString().match(new RegExp(regexp)) !== null;
+        }
     };
 
     return Pluralizer;
