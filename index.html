@@ -2,8 +2,227 @@
 <html>
 <head>
 	<title>Pluralizer</title>
+	<style type="text/css">
+		html, body {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			background: #000;
+			color: #00BCD4;
+			font-family: monospace;
+			align-items: center;
+		    font-size: 18px;
+			font-weight: bold;
+		}
+
+		body {
+			overflow: auto;
+		}
+
+		._button {
+			cursor: pointer;
+			flex-shrink: 0;
+		}
+
+		._button._add, ._button._remove {
+		    width: 24px;
+		    height: 24px;
+		    text-align: center;
+		    border-radius: 24px;
+		    position: absolute;
+		    bottom: -16px;
+		    right: -16px;
+		    background: #8bc34a;
+		    color: #000;
+		    display: flex;
+		    flex-direction: row;
+		    align-items: center;
+		    justify-content: center;
+		    font-size: 39px;
+		    padding: 0;
+		    border: 2px solid black;
+		}
+
+		._button._add p, ._button._remove p {
+			margin: 0;
+			margin-top: -6px;
+			user-select: none;
+		}
+
+		._button._remove {
+			right: -26px;
+		    background: #FF5722;
+		    bottom: 4px;
+		}
+
+		._test {
+			width: 600px;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		._test > div {
+			width: 100%;
+			display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    border: 2px dotted #FF9800;
+		    margin:32px 0;
+		    padding: 10px;
+		    padding-bottom: 20px;
+		    box-sizing: border-box;
+		    border-radius: 5px;
+		    position: relative;
+		    flex-shrink: 0;
+		}
+
+		._test > div > p._caption {
+	        margin-top: -24px;
+		    background: black;
+		    padding: 0 10px;
+		    text-transform: uppercase;
+		    font-size: 24px;
+		}
+
+		textarea, input[type="text"] {
+			max-width: 100%;
+			min-width: 100%;
+		    border: 1px solid #FF5722;
+		    background: #060606;
+		    color: #fff;
+		    box-sizing: border-box;
+		    outline: none;
+		    padding: 10px;
+		    text-align: center;
+		    font-size: 18px;
+		    line-height: 18px;
+		    height: auto;
+		    border-radius: 5px;
+		}
+
+		._variables {
+
+		}
+
+		._variables ._captions {
+		    display: flex;
+		    flex-direction: row;
+		    width: 100%;
+		    border: 1px solid #E91E63;
+		    padding: 0 10px;
+		    box-sizing: border-box;
+		    height: 36px;
+		    align-items: center;
+		}
+
+		._variables ._captions p {
+			flex-grow: 1;
+			color: #ffc107;
+
+		}
+
+		._variables ._container {
+			width: 100%;
+			position: relative;
+		}
+
+		._variable {
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			width: 100%;
+			padding: 10px 0;
+			padding-bottom: 0;
+			align-items: flex-start;
+		}
+
+		._variable input {
+			width: 50%;
+			min-width: auto;
+			height: 36px;
+		}
+
+		._variable input[name="name"]{
+			margin-right: 8px;
+		}
+
+	</style>
 </head>
 <body>
+	<div class="_test">
+		<div class="_input-wrapper">
+			<p class="_caption">Pluralization rules</p>
+			<textarea class="_pluralization-rule">ends(1)#ends(range(2,4))#or(ends(range(5, 19)), ends(0))</textarea>
+		</div>
+		<div class="_variables">
+			<p class="_caption">Varialbes</p>
+			<div class="_captions">
+				<p class="_name">Name</p>
+				<p class="_value">Value</p>
+			</div>
+			<div class="_container">
+				
+			</div>
+			<div class="_button _add">
+				<p>+</p>
+			</div>
+		</div>
+		<div class="_token _input-wrapper">
+			<p class="_caption">String to pluralize</p>
+			<textarea>Привет</textarea>
+		</div>
+		<div class="_result">
+			<p class="_caption">Result</p>
+			<p class="_value"></p>
+			<p class="_error"></p>
+		</div>
+	</div>
 	<script type="text/javascript" src="pluralizer.js"></script>
+	<script type="text/javascript">
+		var Playgorund = function(){
+			this.addNewVarButton = document.querySelector("._button._add");
+			this.addNewVarButton.addEventListener("click", this.__onAddNewButtonClick.bind(this));
+
+			this.variablesContainer = document.querySelector("._variables ._container");
+		};
+
+		Playgorund.prototype = {
+			__onAddNewButtonClick : function(){
+				this.__addVarialble();
+			},
+			__addVarialble : function(){
+				var varNode = document.querySelector("#variable").content.cloneNode(true).children[0];
+				varNode.querySelector("input._name").addEventListener("input", this.__onVariableNameChanged.bind(this, varNode));
+				varNode.querySelector("input._value").addEventListener("input", this.__onVariableValueChanged.bind(this, varNode));
+				varNode.querySelector("._button._remove").addEventListener("click", this.__onVariableRemoveClicked.bind(this, varNode));
+				this.variablesContainer.appendChild(varNode);
+			},
+			__onVariableNameChanged : function(){
+				console.log(arguments);
+			},
+			__onVariableValueChanged : function(){
+				console.log(arguments);
+			},
+			__onVariableRemoveClicked : function(varNode){
+				console.log(arguments);
+				varNode.remove();
+			},
+		};
+
+		window.playground = new Playgorund();
+	</script>
+	<template id="variable">
+		<div class="_variable">
+			<input type="text" name="name" class="_name">
+			<input type="text" name="value" class="_value">
+			<div class="_button _remove">
+				<p>-</p>
+			</div>
+		</div>
+	</template>
 </body>
 </html>
