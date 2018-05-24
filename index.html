@@ -173,7 +173,7 @@
 		</div>
 		<div class="_token _input-wrapper">
 			<p class="_caption">String to pluralize</p>
-			<textarea>Привет</textarea>
+			<textarea class="_string-to-pluralize">Привет</textarea>
 		</div>
 		<div class="_result">
 			<p class="_caption">Result</p>
@@ -184,21 +184,41 @@
 	<script type="text/javascript" src="pluralizer.js"></script>
 	<script type="text/javascript">
 		var Playgorund = function(){
-			this.addNewVarButton = document.querySelector("._button._add");
-			this.addNewVarButton.addEventListener("click", this.__onAddNewButtonClick.bind(this));
+			this.state = {
+				pluralizationRules : null,
+				stringToPluralize : null,
+			};	
+
+			this.__setuplayout();
 
 			this.variablesContainer = document.querySelector("._variables ._container");
 		};
 
 		Playgorund.prototype = {
+			__setuplayout : function(){
+				this.nodes = {
+					addNewVarButton : document.querySelector("._button._add"),
+					stringToPluralize : document.querySelector("textarea._string-to-pluralize"),
+					pluralizationRule : document.querySelector("textarea._pluralization-rule"),
+					
+				};
+
+				this.nodes.addNewVarButton.addEventListener("click", this.__onAddNewButtonClick.bind(this));
+				this.nodes.stringToPluralize.addEventListener("input", this.__onStringToPluralizeInput.bind(this, this.stringToPluralize))
+				this.nodes.pluralizationRule.addEventListener("input", this.__onPluralizationRuleInput.bind(this, this.pluralizationRule))
+			},
 			__onAddNewButtonClick : function(){
 				this.__addVarialble();
 			},
-			__addVarialble : function(){
+			__addVarialble : function(name, value){
 				var varNode = document.querySelector("#variable").content.cloneNode(true).children[0];
 				varNode.querySelector("input._name").addEventListener("input", this.__onVariableNameChanged.bind(this, varNode));
 				varNode.querySelector("input._value").addEventListener("input", this.__onVariableValueChanged.bind(this, varNode));
 				varNode.querySelector("._button._remove").addEventListener("click", this.__onVariableRemoveClicked.bind(this, varNode));
+
+				varNode.querySelector("input._name").value = name || "";
+				varNode.querySelector("input._value").value = value || "";
+
 				this.variablesContainer.appendChild(varNode);
 			},
 			__onVariableNameChanged : function(){
@@ -211,6 +231,12 @@
 				console.log(arguments);
 				varNode.remove();
 			},
+			__onStringToPluralizeInput : function(element){
+				this.state.stringToPluralize = element.value;
+			},
+			__onPluralizationRuleInput : function(){
+				
+			}
 		};
 
 		window.playground = new Playgorund();
